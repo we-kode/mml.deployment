@@ -1,0 +1,39 @@
+services:
+    records.reverseproxy:
+      image: ${IMAGE}
+      container_name: records.reverseproxy
+      restart: always
+      user: ${UID}:${GID}
+      ports:
+        - "${SSL_PORT}:${INTERN_SSL_PORT}"
+      volumes:
+        - "${VOL_CERTS}:/etc/nginx/certs:ro"
+        - "${CONF_TEMPLATE}/default.conf.template:/etc/nginx/templates/default.conf.template"
+        - /etc/localtime:/etc/localtime:ro
+      environment:
+        CERT_NAME: ${CERT_NAME}
+        INTERN_SSL_PORT: ${INTERN_SSL_PORT}
+        FILE_UPLOAD_LIMIT: ${FILE_UPLOAD_LIMIT}
+        REQUEST_MODE: ${REQUEST_MODE}
+        RPS_LIMIT: ${RPS_LIMIT}
+        RIP_CACHE: ${RIP_CACHE}
+        RBURST_LIMIT: ${RBURST_LIMIT}
+        IDENTITY_API_ADDRESS: ${IDENTITY_API_ADDRESS}
+        IDENTITY_API_PORT: ${IDENTITY_API_PORT}
+        RECORD_API_ADDRESS: ${RECORD_API_ADDRESS}
+        RECORD_API_PORT: ${RECORD_API_PORT}
+        PLAY_API_ADDRESS: ${PLAY_API_ADDRESS}
+        PLAY_API_PORT: ${PLAY_API_PORT}
+      logging:
+            driver: "json-file"
+            options:
+                mode: "non-blocking"
+                max-size: ${LOG_MAX_SIZE}
+                max-file: ${LOG_MAX_FILE}
+      networks:
+            - records
+
+networks:
+  records:
+    external: true
+    name: records
