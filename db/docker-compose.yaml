@@ -1,0 +1,26 @@
+services:
+  records.db:
+    image: ${IMAGE}
+    container_name: records.db
+    restart: always
+    user: ${UID}:${GID}
+    environment:
+      POSTGRES_PASSWORD_FILE: /secrets/${POSTGRES_PASSWORD_FILE}
+      POSTGRES_USER_FILE: /secrets/${POSTGRES_USER_FILE}
+      PGDATA: /data
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+      POSTGRES_INITDB_ARGS: --auth=scram-sha-256 --encoding=UTF8
+    command: -c 'config_file=/etc/postgresql/record-postgresql.conf'
+    volumes:
+      - ${PGDATA_VOL}:/data
+      - ${SECRETS_VOL}:/secrets:ro
+      - ${PG_CONFIG_VOL}:/etc/postgresql/record-postgresql.conf:ro
+      - ${DB_CONFIG_VOL}:/configs:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./initdb.d:/docker-entrypoint-initdb.d
+    networks:
+      - records
+
+networks:
+  records:
+    external: true
