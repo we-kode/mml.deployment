@@ -5,6 +5,10 @@ tls
 dev
 dev.env
 env.dev
+charts
+.env.dev
+db/data
+db/secrets
 
 # Created by https://www.toptal.com/developers/gitignore/api/linux,windows,macos,git,visualstudio,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=linux,windows,macos,git,visualstudio,visualstudiocode
@@ -505,5 +509,3 @@ FodyWeavers.xsd
 # Additional files built by Visual Studio
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,windows,macos,git,visualstudio,visualstudiocode
-
-charts
