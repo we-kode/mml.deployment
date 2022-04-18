@@ -8,6 +8,7 @@ services:
       volumes:
         - "${VOL_CERTS}:/etc/nginx/certs:ro"
         - "${CONF_TEMPLATE}/default.conf.template:/etc/nginx/templates/default.conf.template"
+        - /etc/localtime:/etc/localtime:ro
       environment:
         CERT_NAME: ${CERT_NAME}
         INTERN_SSL_PORT: ${INTERN_SSL_PORT}
@@ -18,8 +19,6 @@ services:
         RBURST_LIMIT: ${RBURST_LIMIT}
         IDENTITY_API_ADDRESS: ${IDENTITY_API_ADDRESS}
         IDENTITY_API_PORT: ${IDENTITY_API_PORT}
-        IDENTITY_FEED_ADDRESS: ${IDENTITY_FEED_ADDRESS}
-        IDENTITY_FEED_PORT: ${IDENTITY_FEED_PORT}
         RECORD_API_ADDRESS: ${RECORD_API_ADDRESS}
         RECORD_API_PORT: ${RECORD_API_PORT}
         PLAY_API_ADDRESS: ${PLAY_API_ADDRESS}
@@ -28,8 +27,8 @@ services:
             driver: "json-file"
             options:
                 mode: "non-blocking"
-                max-size: "20m"
-                max-file: "2"
+                max-size: ${LOG_MAX_SIZE}
+                max-file: ${LOG_MAX_FILES}
       networks:
             - records
 
