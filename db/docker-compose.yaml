@@ -20,6 +20,12 @@ services:
       - ./initdb.d:/docker-entrypoint-initdb.d
     networks:
       - records
+    logging:
+      driver: "json-file"
+      options:
+        mode: "non-blocking"
+        max-size: "${LOG_MAX_SIZE}"
+        max-file: "${LOG_MAX_FILE}"
 
 networks:
   records:
