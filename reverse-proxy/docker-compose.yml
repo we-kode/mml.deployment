@@ -3,6 +3,7 @@ services:
       image: ${IMAGE}
       container_name: records.reverseproxy
       restart: always
+      user: ${UID}:${GID}
       ports:
         - "${SSL_PORT}:${INTERN_SSL_PORT}"
       volumes:
