@@ -1,0 +1,80 @@
+limit_req_zone ${REQUEST_MODE} zone=ratelimit:${RIP_CACHE} rate=${RPS_LIMIT}r/s;
+
+server {
+    # ssl configuration
+    listen ${INTERN_SSL_PORT} ssl default_server;
+    ssl_certificate /etc/nginx/certs/${CERT_NAME}.crt;
+    ssl_certificate_key /etc/nginx/certs/${CERT_NAME}.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers "EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EECDH EDH+aRSA HIGH !RC4 !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS";
+
+    # turn off version of nginx and set limit for header size
+    server_tokens off;
+    client_header_buffer_size 1k;
+    client_body_buffer_size 1k;
+    client_max_body_size ${FILE_UPLOAD_LIMIT};
+
+    # allowed request methods
+    if ($request_method !~ ^(GET|OPTIONS|POST|DELETE)$ ) {
+         return 444;
+    }
+
+    # Block download agents
+    if ($http_user_agent ~* LWP::Simple|BBBike|wget) {
+         return 403;
+    }
+
+    # Block some robots
+    if ($http_user_agent ~* msnbot|scrapbot) {
+            return 403;
+    }
+
+    # logging
+    error_log /dev/stdout crit;
+    gzip on;
+
+    ## secure headers
+    # anti clickjacking
+    add_header X-Frame-Options "SAMEORIGIN";
+    # hsts
+    add_header Strict-Transport-Security "max-age=31536000; includeSubdomains; preload";
+    # CSP and X-XSS-Protection
+    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline' 'unsafe-eval'" always;
+    add_header X-XSS-Protection "1; mode=block";
+    # disable Content-Type-Sniffing
+    add_header X-Content-Type-Options nosniff;
+
+
+    ### Services-Configuration
+    ## Identity-Service
+    # api
+    location ~* ^/api/v.*/identity(.*)$ {
+       limit_req zone=ratelimit burst=${RBURST_LIMIT} nodelay;
+       proxy_pass ${IDENTITY_API_ADDRESS}:${IDENTITY_API_PORT};
+       proxy_set_header X-Forwarded-For $remote_addr;
+    }
+
+    # signalr connection
+    location ~* ^/feed/hubs/identity(.*)$ {
+       proxy_pass ${IDENTITY_FEED_ADDRESS}:${IDENTITY_FEED_PORT};
+       proxy_set_header X-Forwarded-For $remote_addr;
+       proxy_http_version 1.1;
+       proxy_set_header Upgrade $http_upgrade;
+       proxy_set_header Connection "Upgrade";
+    }
+
+    ## Record-service
+    location ~* ^/api/v.*/record(.*)$ {
+       limit_req zone=ratelimit burst=${RBURST_LIMIT} nodelay;
+       proxy_pass ${RECORD_API_ADDRESS}:${RECORD_API_PORT};
+       proxy_set_header X-Forwarded-For $remote_addr;
+    }
+
+    ## Play-service
+    location ~* ^/api/v.*/play(.*)$ {
+       limit_req zone=ratelimit burst=${RBURST_LIMIT} nodelay;
+       proxy_pass ${PLAY_API_ADDRESS}:${PLAY_API_PORT};
+       proxy_set_header X-Forwarded-For $remote_addr;
+    }
+}
