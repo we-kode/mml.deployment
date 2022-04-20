@@ -1,7 +1,7 @@
 services:
-    records.reverseproxy:
+    wekode.mml.reverseproxy:
       image: ${IMAGE}
-      container_name: records.reverseproxy
+      container_name: wekode.mml.reverseproxy
       restart: always
       user: ${UID}:${GID}
       ports:
