@@ -1,7 +1,7 @@
 services:
-    records.reverseproxy:
+    wekode.mml.reverseproxy:
       image: ${IMAGE}
-      container_name: records.reverseproxy
+      container_name: wekode.mml.reverseproxy
       restart: always
       user: ${UID}:${GID}
       ports:
@@ -20,8 +20,8 @@ services:
         RBURST_LIMIT: ${RBURST_LIMIT}
         IDENTITY_API_ADDRESS: ${IDENTITY_API_ADDRESS}
         IDENTITY_API_PORT: ${IDENTITY_API_PORT}
-        RECORD_API_ADDRESS: ${RECORD_API_ADDRESS}
-        RECORD_API_PORT: ${RECORD_API_PORT}
+        MEDIA_API_ADDRESS: ${MEDIA_API_ADDRESS}
+        MEDIA_API_PORT: ${MEDIA_API_PORT}
         PLAY_API_ADDRESS: ${PLAY_API_ADDRESS}
         PLAY_API_PORT: ${PLAY_API_PORT}
       logging:
@@ -31,9 +31,9 @@ services:
                 max-size: ${LOG_MAX_SIZE}
                 max-file: ${LOG_MAX_FILE}
       networks:
-            - records
+            - wekode.mml
 
 networks:
-  records:
+  wekode.mml:
     external: true
-    name: records
+    name: wekode.mml

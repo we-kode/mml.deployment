@@ -1,7 +1,7 @@
 services:
-  records.db:
+  wekode.mml.db:
     image: ${IMAGE}
-    container_name: records.db
+    container_name: wekode.mml.db
     restart: always
     user: ${UID}:${GID}
     environment:
@@ -10,16 +10,16 @@ services:
       PGDATA: /data
       POSTGRES_HOST_AUTH_METHOD: scram-sha-256
       POSTGRES_INITDB_ARGS: --auth=scram-sha-256 --encoding=UTF8
-    command: -c 'config_file=/etc/postgresql/record-postgresql.conf'
+    command: -c 'config_file=/etc/postgresql/mml-postgresql.conf'
     volumes:
       - ${PGDATA_VOL}:/data
       - ${SECRETS_VOL}:/secrets:ro
-      - ${PG_CONFIG_VOL}:/etc/postgresql/record-postgresql.conf:ro
+      - ${PG_CONFIG_VOL}:/etc/postgresql/mml-postgresql.conf:ro
       - ${DB_CONFIG_VOL}:/configs:ro
       - /etc/localtime:/etc/localtime:ro
       - ./initdb.d:/docker-entrypoint-initdb.d
     networks:
-      - records
+      - wekode.mml
     logging:
       driver: "json-file"
       options:
@@ -28,5 +28,5 @@ services:
         max-file: "${LOG_MAX_FILE}"
 
 networks:
-  records:
+  wekode.mml:
     external: true
