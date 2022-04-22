@@ -45,39 +45,46 @@ server {
     # disable Content-Type-Sniffing
     add_header X-Content-Type-Options nosniff;
 
+    # internal Docker DNS with 30s cache
+    resolver 127.0.0.11 valid=30s;
 
     ### Services-Configuration
     ## Identity-Service
     # api
     location ~* ^/api/v.*/identity/user(.*)$ {
        limit_req zone=ratelimit burst=${RBURST_LIMIT} nodelay;
-       proxy_pass ${IDENTITY_API_ADDRESS}:${IDENTITY_API_PORT};
+       set $upstream ${IDENTITY_API_ADDRESS}:${IDENTITY_API_PORT};
+       proxy_pass $upstream;
        proxy_set_header X-Forwarded-For $remote_addr;
     }
 	
 	location ~* ^/api/v.*/identity/connect(.*)$ {
        limit_req zone=ratelimit burst=${RBURST_LIMIT} nodelay;
-       proxy_pass ${IDENTITY_API_ADDRESS}:${IDENTITY_API_PORT};
+       set $upstream ${IDENTITY_API_ADDRESS}:${IDENTITY_API_PORT};
+       proxy_pass $upstream;
        proxy_set_header X-Forwarded-For $remote_addr;
     }
 	
 	location ~* ^/api/v.*/identity/client(.*)$ {
        limit_req zone=ratelimit burst=${RBURST_LIMIT} nodelay;
-       proxy_pass ${IDENTITY_API_ADDRESS}:${IDENTITY_API_PORT};
+       set $upstream ${IDENTITY_API_ADDRESS}:${IDENTITY_API_PORT};
+       proxy_pass $upstream;
        proxy_set_header X-Forwarded-For $remote_addr;
     }
 
     ## Media-service
     location ~* ^/api/v.*/media(.*)$ {
        limit_req zone=ratelimit burst=${RBURST_LIMIT} nodelay;
-       proxy_pass ${MEDIA_API_ADDRESS}:${MEDIA_API_PORT};
+       set $upstream ${MEDIA_API_ADDRESS}:${MEDIA_API_PORT};
+       proxy_pass $upstream;
        proxy_set_header X-Forwarded-For $remote_addr;
     }
 
     ## Play-service
     location ~* ^/api/v.*/play(.*)$ {
        limit_req zone=ratelimit burst=${RBURST_LIMIT} nodelay;
-       proxy_pass ${PLAY_API_ADDRESS}:${PLAY_API_PORT};
+       set $upstream ${PLAY_API_ADDRESS}:${PLAY_API_PORT};
+       proxy_pass $upstream;
        proxy_set_header X-Forwarded-For $remote_addr;
     }
 }
