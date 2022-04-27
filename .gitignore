@@ -9,6 +9,7 @@ charts
 .env.dev
 db/data
 db/secrets
+redis.conf
 
 # Created by https://www.toptal.com/developers/gitignore/api/linux,windows,macos,git,visualstudio,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=linux,windows,macos,git,visualstudio,visualstudiocode
