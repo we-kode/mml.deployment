@@ -72,6 +72,13 @@ server {
        proxy_set_header X-Forwarded-For $remote_addr;
     }
 	
+	location ~* ^/api/v.*/identity/group(.*)$ {
+      limit_req zone=ratelimit burst=${RBURST_LIMIT} nodelay;
+      set $upstream ${IDENTITY_API_ADDRESS}:${IDENTITY_API_PORT};
+      proxy_pass $upstream;
+      proxy_set_header X-Forwarded-For $remote_addr;
+   }
+	
 	location ~* ^/hub/client(.*)$ {
        proxy_pass ${IDENTITY_API_ADDRESS}:${IDENTITY_API_PORT};
        proxy_set_header X-Forwarded-For $remote_addr;
