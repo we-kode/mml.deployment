@@ -22,8 +22,7 @@ services:
         IDENTITY_API_PORT: ${IDENTITY_API_PORT}
         MEDIA_API_ADDRESS: ${MEDIA_API_ADDRESS}
         MEDIA_API_PORT: ${MEDIA_API_PORT}
-        PLAY_API_ADDRESS: ${PLAY_API_ADDRESS}
-        PLAY_API_PORT: ${PLAY_API_PORT}
+
       logging:
             driver: "json-file"
             options:

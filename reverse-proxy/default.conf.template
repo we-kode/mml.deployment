@@ -94,12 +94,4 @@ server {
        proxy_pass $upstream;
        proxy_set_header X-Forwarded-For $remote_addr;
     }
-
-    ## Play-service
-    location ~* ^/api/v.*/play(.*)$ {
-       limit_req zone=ratelimit burst=${RBURST_LIMIT} nodelay;
-       set $upstream ${PLAY_API_ADDRESS}:${PLAY_API_PORT};
-       proxy_pass $upstream;
-       proxy_set_header X-Forwarded-For $remote_addr;
-    }
 }
