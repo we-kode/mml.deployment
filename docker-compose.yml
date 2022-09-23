@@ -114,7 +114,6 @@ services:
     image: nginx:${NGINX_VERSION:-latest}
     container_name: wekode.mml.reverseproxy
     restart: always
-    user: ${UID:-1001}:${GID:-1001}
     ports:
       - "${SSL_PORT:-5050}:${INTERN_SSL_PORT:-5050}"
     depends_on:
@@ -126,15 +125,15 @@ services:
       - /etc/localtime:/etc/localtime:ro
     environment:
       CERT_NAME: ${CERT_NAME}
-      INTERN_SSL_PORT: ${INTERN_SSL_PORT}
+      INTERN_SSL_PORT: ${INTERN_SSL_PORT:-5050}
       FILE_UPLOAD_LIMIT: ${FILE_UPLOAD_LIMIT:-100m}
       REQUEST_MODE: ${REQUEST_MODE:-$$binary_remote_addr}
       RPS_LIMIT: ${RPS_LIMIT:-100}
       RIP_CACHE: ${RIP_CACHE:-10m}
       RBURST_LIMIT: ${RBURST_LIMIT:-20}
-      IDENTITY_API_ADDRESS: ${IDENTITY_API_ADDRESS:-https://mml.wekode.identity}
+      IDENTITY_API_ADDRESS: ${IDENTITY_API_ADDRESS:-https://wekode.mml.identity}
       IDENTITY_API_PORT: ${IDENTITY_API_PORT:-5051}
-      MEDIA_API_ADDRESS: ${MEDIA_API_ADDRESS:-https://mml.wekode.media}
+      MEDIA_API_ADDRESS: ${MEDIA_API_ADDRESS:-https://wekode.mml.media}
       MEDIA_API_PORT: ${MEDIA_API_PORT:-5052}
     logging:
       driver: "json-file"
