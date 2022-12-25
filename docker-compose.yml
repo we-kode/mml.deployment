@@ -1,0 +1,150 @@
+services:
+  # database
+  wekode.mml.db:
+    image: postgres:${POSTRES_VERSION:-latest}
+    container_name: wekode.mml.db
+    restart: always
+    user: ${UID:-1001}:${GID:-1001}
+    environment:
+      POSTGRES_PASSWORD_FILE: /secrets/${POSTGRES_PASSWORD_FILE}
+      POSTGRES_USER_FILE: /secrets/${POSTGRES_USER_FILE}
+      PGDATA: /data
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+      POSTGRES_INITDB_ARGS: --auth=scram-sha-256 --encoding=UTF8
+    command: -c 'config_file=/etc/postgresql/mml-postgresql.conf'
+    volumes:
+      - ${PGDATA_VOL}:/data
+      - ${SECRETS_VOL}:/secrets:ro
+      - ${PG_CONFIG_VOL}:/etc/postgresql/mml-postgresql.conf:ro
+      - ${DB_CONFIG_VOL}:/configs:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./initdb.d:/docker-entrypoint-initdb.d
+    networks:
+      - wekode.mml
+    logging:
+      driver: "json-file"
+      options:
+        mode: "non-blocking"
+        max-size: "${LOG_MAX_SIZE:-20m}"
+        max-file: "${LOG_MAX_FILE:-2}"
+  # redis cache
+  wekode.mml.cache:
+    image: redis:${REDIS_VERSION:-latest}
+    container_name: wekode.mml.cache
+    restart: always
+    user: 999:999
+    volumes:
+      - ${CONFIG_PATH}/redis.conf:/etc/redis/redis.conf
+      - ${VOL_CERTS}:/etc/ssl/certs:ro
+      - /etc/localtime:/etc/localtime:ro
+    command: ["redis-server", "/etc/redis/redis.conf"]
+    logging:
+      driver: "json-file"
+      options:
+          mode: "non-blocking"
+          max-size: "${LOG_MAX_SIZE:-20m}"
+          max-file: "${LOG_MAX_FILE:-2}"
+    networks:
+      - wekode.mml
+  # eventbus
+  wekode.mml.mbus:
+    image: rabbitmq:${MBUS_VERSION:-latest}
+    container_name: wekode.mml.mbus
+    hostname: wekode.mml.mbus
+    restart: always
+    user: ${UID:-1001}:${GID:-1001}
+    volumes:
+      - ${ENABLED_PLUGINS_FILE}:/etc/rabbitmq/enabled_plugins:ro
+      - ${CONFIG_FILE}:/etc/rabbitmq/rabbitmq.conf:ro
+      - /etc/localtime:/etc/localtime:ro
+    logging:
+      driver: "json-file"
+      options:
+        mode: "non-blocking"
+        max-size: "${LOG_MAX_SIZE:-20m}"
+        max-file: "${LOG_MAX_FILE:-2}"
+    networks:
+      - wekode.mml
+  # identity
+  wekode.mml.identity:
+    image: w3kod3/wekode.mml.identity:${IDENTITY_VERSION}
+    container_name: wekode.mml.identity
+    restart: always
+    user: ${UID:-1001}:${GID:-1001}
+    depends_on:
+      - "wekode.mml.db"
+      - "wekode.mml.cache"
+    volumes:
+      - ${VOL_CERTS}:/etc/ssl/certs:ro
+      - ${IDENTITY_APPSETTINGS}:/configs/appsettings.json:ro
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - wekode.mml
+    logging:
+      driver: "json-file"
+      options:
+        mode: "non-blocking"
+        max-size: "${LOG_MAX_SIZE:-20m}"
+        max-file: "${LOG_MAX_FILE:-2}"
+  # media
+  wekode.mml.media:
+    image: w3kod3/wekode.mml.media:${MEDIA_VERSION}
+    container_name: wekode.mml.media
+    restart: always
+    user: ${UID:-1001}:${GID:-1001}
+    depends_on:
+      - "wekode.mml.db"
+      - "wekode.mml.cache"
+      - "wekode.mml.identity"
+    volumes:
+      - ${VOL_CERTS}:/etc/ssl/certs:ro
+      - ${VOL_RECORDS}:/records
+      - ${MEDIA_APPSETTINGS}:/configs/appsettings.json:ro
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - wekode.mml
+    logging:
+      driver: "json-file"
+      options:
+        mode: "non-blocking"
+        max-size: "${LOG_MAX_SIZE:-20m}"
+        max-file: "${LOG_MAX_FILE:-2}"
+  # reverse proxy
+  wekode.mml.reverseproxy:
+    image: nginx:${NGINX_VERSION:-latest}
+    container_name: wekode.mml.reverseproxy
+    restart: always
+    ports:
+      - "${SSL_PORT:-5050}:${INTERN_SSL_PORT:-5050}"
+    depends_on:
+      - "wekode.mml.media"
+      - "wekode.mml.identity"
+    volumes:
+      - "${VOL_CERTS}:/etc/nginx/certs:ro"
+      - "${CONF_TEMPLATE}/default.conf.template:/etc/nginx/templates/default.conf.template"
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      CERT_NAME: ${CERT_NAME}
+      INTERN_SSL_PORT: ${INTERN_SSL_PORT:-5050}
+      FILE_UPLOAD_LIMIT: ${FILE_UPLOAD_LIMIT:-100m}
+      REQUEST_MODE: ${REQUEST_MODE:-$$binary_remote_addr}
+      RPS_LIMIT: ${RPS_LIMIT:-100}
+      RIP_CACHE: ${RIP_CACHE:-10m}
+      RBURST_LIMIT: ${RBURST_LIMIT:-20}
+      IDENTITY_API_ADDRESS: ${IDENTITY_API_ADDRESS:-https://wekode.mml.identity}
+      IDENTITY_API_PORT: ${IDENTITY_API_PORT:-5051}
+      MEDIA_API_ADDRESS: ${MEDIA_API_ADDRESS:-https://wekode.mml.media}
+      MEDIA_API_PORT: ${MEDIA_API_PORT:-5052}
+    logging:
+      driver: "json-file"
+      options:
+          mode: "non-blocking"
+          max-size: "${LOG_MAX_SIZE:-20m}"
+          max-file: "${LOG_MAX_FILE:-2}"
+    networks:
+      - wekode.mml
+
+networks:
+  wekode.mml:
+    external: true
+    name: wekode.mml

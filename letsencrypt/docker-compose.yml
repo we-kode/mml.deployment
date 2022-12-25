@@ -1,0 +1,5 @@
+services:
+  wekode.mml.certs:
+    image: neilpang/acme.sh
+    container_name: wekode.mml.certs
+    restart: always
