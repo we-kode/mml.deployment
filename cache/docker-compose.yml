@@ -5,7 +5,7 @@ services:
       restart: always
       user: ${UID}:${GID}
       volumes:
-        - ${CONFIG_PATH}/redis.conf:/etc/redis/redis.conf
+        - ${CONFIG_PATH}/redis.conf:/etc/redis/redis.conf:Z
         - ${VOL_CERTS}:/etc/ssl/certs:ro
         - /etc/localtime:/etc/localtime:ro
       command: ["redis-server", "/etc/redis/redis.conf"]

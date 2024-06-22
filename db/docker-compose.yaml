@@ -3,7 +3,7 @@ services:
     image: ${IMAGE}
     container_name: wekode.mml.db
     restart: always
-    user: ${UID}:${GID}
+    #user: ${UID}:${GID}
     environment:
       POSTGRES_PASSWORD_FILE: /secrets/${POSTGRES_PASSWORD_FILE}
       POSTGRES_USER_FILE: /secrets/${POSTGRES_USER_FILE}
@@ -12,12 +12,12 @@ services:
       POSTGRES_INITDB_ARGS: --auth=scram-sha-256 --encoding=UTF8
     command: -c 'config_file=/etc/postgresql/mml-postgresql.conf'
     volumes:
-      - ${PGDATA_VOL}:/data
-      - ${SECRETS_VOL}:/secrets:ro
-      - ${PG_CONFIG_VOL}:/etc/postgresql/mml-postgresql.conf:ro
-      - ${DB_CONFIG_VOL}:/configs:ro
+      - ${PGDATA_VOL}:/data:z
+      - ${SECRETS_VOL}:/secrets:ro,z
+      - ${PG_CONFIG_VOL}:/etc/postgresql/mml-postgresql.conf:ro,z
+      - ${DB_CONFIG_VOL}:/configs:ro,z
       - /etc/localtime:/etc/localtime:ro
-      - ./initdb.d:/docker-entrypoint-initdb.d
+      - ./initdb.d:/docker-entrypoint-initdb.d:z
     networks:
       - wekode.mml
     logging:
@@ -30,3 +30,4 @@ services:
 networks:
   wekode.mml:
     external: true
+    name: wekode.mml

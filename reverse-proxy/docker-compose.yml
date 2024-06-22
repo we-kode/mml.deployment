@@ -6,9 +6,12 @@ services:
       user: ${UID}:${GID}
       ports:
         - "${SSL_PORT}:${INTERN_SSL_PORT}"
+      depends_on:
+        - "wekode.mml.media"
+        - "wekode.mml.identity"
       volumes:
-        - "${VOL_CERTS}:/etc/nginx/certs:ro"
-        - "${CONF_TEMPLATE}/default.conf.template:/etc/nginx/templates/default.conf.template"
+        - "${VOL_CERTS}:/etc/nginx/certs:ro,z"
+        - "${CONF_TEMPLATE}/default.conf.template:/etc/nginx/templates/default.conf.template:Z"
         - /etc/localtime:/etc/localtime:ro
       environment:
         CERT_NAME: ${CERT_NAME}

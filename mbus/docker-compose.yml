@@ -6,8 +6,8 @@ services:
     restart: always
     user: ${UID}:${GID}
     volumes:
-      - ${ENABLED_PLUGINS_FILE}:/etc/rabbitmq/enabled_plugins:ro
-      - ${CONFIG_FILE}:/etc/rabbitmq/rabbitmq.conf:ro
+      - ${ENABLED_PLUGINS_FILE}:/etc/rabbitmq/enabled_plugins:ro,Z
+      - ${CONFIG_FILE}:/etc/rabbitmq/rabbitmq.conf:ro,Z
       - /etc/localtime:/etc/localtime:ro
     logging:
       driver: "json-file"

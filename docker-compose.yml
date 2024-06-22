@@ -13,12 +13,12 @@ services:
       POSTGRES_INITDB_ARGS: --auth=scram-sha-256 --encoding=UTF8
     command: -c 'config_file=/etc/postgresql/mml-postgresql.conf'
     volumes:
-      - ${PGDATA_VOL}:/data
-      - ${SECRETS_VOL}:/secrets:ro
-      - ${PG_CONFIG_VOL}:/etc/postgresql/mml-postgresql.conf:ro
-      - ${DB_CONFIG_VOL}:/configs:ro
+      - ${PGDATA_VOL}:/data:z
+      - ${SECRETS_VOL}:/secrets:ro,z
+      - ${PG_CONFIG_VOL}:/etc/postgresql/mml-postgresql.conf:ro,z
+      - ${DB_CONFIG_VOL}:/configs:ro,z
       - /etc/localtime:/etc/localtime:ro
-      - ./initdb.d:/docker-entrypoint-initdb.d
+      - ./initdb.d:/docker-entrypoint-initdb.d:z
     networks:
       - wekode.mml
     logging:
@@ -34,7 +34,7 @@ services:
     restart: always
     user: 999:999
     volumes:
-      - ${CONFIG_PATH}/redis.conf:/etc/redis/redis.conf
+      - ${CONFIG_PATH}/redis.conf:/etc/redis/redis.conf:Z
       - ${VOL_CERTS}:/etc/ssl/certs:ro
       - /etc/localtime:/etc/localtime:ro
     command: ["redis-server", "/etc/redis/redis.conf"]
@@ -54,8 +54,8 @@ services:
     restart: always
     user: ${UID:-1001}:${GID:-1001}
     volumes:
-      - ${ENABLED_PLUGINS_FILE}:/etc/rabbitmq/enabled_plugins:ro
-      - ${CONFIG_FILE}:/etc/rabbitmq/rabbitmq.conf:ro
+      - ${ENABLED_PLUGINS_FILE}:/etc/rabbitmq/enabled_plugins:ro,Z
+      - ${CONFIG_FILE}:/etc/rabbitmq/rabbitmq.conf:ro,Z
       - /etc/localtime:/etc/localtime:ro
     logging:
       driver: "json-file"
@@ -75,8 +75,8 @@ services:
       - "wekode.mml.db"
       - "wekode.mml.cache"
     volumes:
-      - ${VOL_CERTS}:/etc/ssl/certs:ro
-      - ${IDENTITY_APPSETTINGS}:/configs/appsettings.json:ro
+      - ${VOL_CERTS}:/etc/ssl/certs:ro,z
+      - ${IDENTITY_APPSETTINGS}:/configs/appsettings.json:ro,Z
       - /etc/localtime:/etc/localtime:ro
     networks:
       - wekode.mml
@@ -97,9 +97,9 @@ services:
       - "wekode.mml.cache"
       - "wekode.mml.identity"
     volumes:
-      - ${VOL_CERTS}:/etc/ssl/certs:ro
-      - ${VOL_RECORDS}:/records
-      - ${MEDIA_APPSETTINGS}:/configs/appsettings.json:ro
+      - ${VOL_CERTS}:/etc/ssl/certs:ro,z
+      - ${VOL_RECORDS}:/records:Z
+      - ${MEDIA_APPSETTINGS}:/configs/appsettings.json:ro,Z
       - /etc/localtime:/etc/localtime:ro
     networks:
       - wekode.mml
@@ -120,8 +120,8 @@ services:
       - "wekode.mml.media"
       - "wekode.mml.identity"
     volumes:
-      - "${VOL_CERTS}:/etc/nginx/certs:ro"
-      - "${CONF_TEMPLATE}/default.conf.template:/etc/nginx/templates/default.conf.template"
+      - "${VOL_CERTS}:/etc/nginx/certs:ro,z"
+      - "${CONF_TEMPLATE}/default.conf.template:/etc/nginx/templates/default.conf.template:Z"
       - /etc/localtime:/etc/localtime:ro
     environment:
       CERT_NAME: ${CERT_NAME}
