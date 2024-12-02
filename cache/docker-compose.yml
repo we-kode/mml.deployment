@@ -1,0 +1,24 @@
+services:
+    wekode.mml.cache:
+      image: ${IMAGE}
+      container_name: wekode.mml.cache
+      restart: always
+      user: ${UID}:${GID}
+      volumes:
+        - ${CONFIG_PATH}/redis.conf:/etc/redis/redis.conf:Z
+        - ${VOL_CERTS}:/etc/ssl/certs:ro
+        - /etc/localtime:/etc/localtime:ro
+      command: ["redis-server", "/etc/redis/redis.conf"]
+      logging:
+            driver: "json-file"
+            options:
+                mode: "non-blocking"
+                max-size: ${LOG_MAX_SIZE}
+                max-file: ${LOG_MAX_FILE}
+      networks:
+            - wekode.mml
+
+networks:
+  wekode.mml:
+    external: true
+    name: wekode.mml

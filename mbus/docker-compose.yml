@@ -1,0 +1,24 @@
+services:
+  wekode.mml.mbus:
+    image: ${IMAGE}
+    container_name: wekode.mml.mbus
+    hostname: wekode.mml.mbus
+    restart: always
+    user: ${UID}:${GID}
+    volumes:
+      - ${ENABLED_PLUGINS_FILE}:/etc/rabbitmq/enabled_plugins:ro,Z
+      - ${CONFIG_FILE}:/etc/rabbitmq/rabbitmq.conf:ro,Z
+      - /etc/localtime:/etc/localtime:ro
+    logging:
+      driver: "json-file"
+      options:
+        mode: "non-blocking"
+        max-size: ${LOG_MAX_SIZE}
+        max-file: ${LOG_MAX_FILE}
+    networks:
+      - wekode.mml
+
+networks:
+  wekode.mml:
+    external: true
+    name: wekode.mml
