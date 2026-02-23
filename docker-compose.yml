@@ -74,6 +74,7 @@ services:
     depends_on:
       - "wekode.mml.db"
       - "wekode.mml.cache"
+      - "wekode.mml.mbus"
     volumes:
       - ${VOL_CERTS}:/etc/ssl/certs:ro,z
       - ${IDENTITY_APPSETTINGS}:/configs/appsettings.json:ro,Z
@@ -95,6 +96,7 @@ services:
     depends_on:
       - "wekode.mml.db"
       - "wekode.mml.cache"
+      - "wekode.mml.mbus"
       - "wekode.mml.identity"
     volumes:
       - ${VOL_CERTS}:/etc/ssl/certs:ro,z
