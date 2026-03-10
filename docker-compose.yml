@@ -75,6 +75,8 @@ services:
       - "wekode.mml.db"
       - "wekode.mml.cache"
       - "wekode.mml.mbus"
+    environment:
+      INSTANCE: ${INSTANCE}
     volumes:
       - ${VOL_CERTS}:/etc/ssl/certs:ro,z
       - ${IDENTITY_APPSETTINGS}:/configs/appsettings.json:ro,Z
@@ -98,6 +100,8 @@ services:
       - "wekode.mml.cache"
       - "wekode.mml.mbus"
       - "wekode.mml.identity"
+    environment:
+      INSTANCE: ${INSTANCE}
     volumes:
       - ${VOL_CERTS}:/etc/ssl/certs:ro,z
       - ${VOL_RECORDS}:/records:Z
