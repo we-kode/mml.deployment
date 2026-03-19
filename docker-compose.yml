@@ -77,9 +77,12 @@ services:
       - "wekode.mml.mbus"
     environment:
       INSTANCE: ${INSTANCE}
+      ENCRYPT_SECRET: ${ENCRYPT_SECRET:-}
+      SIGN_SECRET: ${SIGN_SECRET:-}
     volumes:
       - ${VOL_CERTS}:/etc/ssl/certs:ro,z
       - ${IDENTITY_APPSETTINGS}:/configs/appsettings.json:ro,Z
+      - ${IDENTITY_SECRETS_PATH}:/secrets
       - /etc/localtime:/etc/localtime:ro
     networks:
       - wekode.mml
