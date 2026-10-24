@@ -75,9 +75,14 @@ services:
       - "wekode.mml.db"
       - "wekode.mml.cache"
       - "wekode.mml.mbus"
+    environment:
+      INSTANCE: ${INSTANCE}
+      ENCRYPT_SECRET: ${ENCRYPT_SECRET:-}
+      SIGN_SECRET: ${SIGN_SECRET:-}
     volumes:
       - ${VOL_CERTS}:/etc/ssl/certs:ro,z
       - ${IDENTITY_APPSETTINGS}:/configs/appsettings.json:ro,Z
+      - ${IDENTITY_SECRETS_PATH}:/secrets
       - /etc/localtime:/etc/localtime:ro
     networks:
       - wekode.mml
@@ -98,10 +103,14 @@ services:
       - "wekode.mml.cache"
       - "wekode.mml.mbus"
       - "wekode.mml.identity"
+    environment:
+      INSTANCE: ${INSTANCE}
+      FEDERATION_KEY_SECRET: ${FEDERATION_KEY_SECRET:-}
     volumes:
       - ${VOL_CERTS}:/etc/ssl/certs:ro,z
       - ${VOL_RECORDS}:/records:Z
       - ${MEDIA_APPSETTINGS}:/configs/appsettings.json:ro,Z
+      - ${MEDIA_SECRETS_PATH:-./media/secrets}:/secrets
       - /etc/localtime:/etc/localtime:ro
     networks:
       - wekode.mml
