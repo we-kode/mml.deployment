@@ -105,10 +105,12 @@ services:
       - "wekode.mml.identity"
     environment:
       INSTANCE: ${INSTANCE}
+      FEDERATION_KEY_SECRET: ${FEDERATION_KEY_SECRET:-}
     volumes:
       - ${VOL_CERTS}:/etc/ssl/certs:ro,z
       - ${VOL_RECORDS}:/records:Z
       - ${MEDIA_APPSETTINGS}:/configs/appsettings.json:ro,Z
+      - ${MEDIA_SECRETS_PATH:-./media/secrets}:/secrets
       - /etc/localtime:/etc/localtime:ro
     networks:
       - wekode.mml
