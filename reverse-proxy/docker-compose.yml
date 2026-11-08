@@ -19,6 +19,7 @@ services:
       user: ${UID}:${GID}
       ports:
         - "${SSL_PORT}:${INTERN_SSL_PORT}"
+        - "${HTTP_PORT:-127.0.0.1:}:${INTERN_HTTP_PORT:-5080}"
       volumes:
         - "${VOL_CERTS}:/etc/nginx/certs:ro,z"
         - "${CONF_TEMPLATE}/default.conf.template:/etc/nginx/templates/default.conf.template:Z"
@@ -30,6 +31,7 @@ services:
         TRUSTED_PROXY: ${TRUSTED_PROXY:-}
         CERT_NAME: ${CERT_NAME:-}
         INTERN_SSL_PORT: ${INTERN_SSL_PORT}
+        INTERN_HTTP_PORT: ${INTERN_HTTP_PORT:-5080}
         FILE_UPLOAD_LIMIT: ${FILE_UPLOAD_LIMIT}
         REQUEST_MODE: ${REQUEST_MODE}
         RPS_LIMIT: ${RPS_LIMIT}
