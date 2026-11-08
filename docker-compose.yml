@@ -149,6 +149,7 @@ services:
     command: ["nginx", "-g", "daemon off;"]
     ports:
       - "${SSL_PORT:-5050}:${INTERN_SSL_PORT:-5050}"
+      - "${HTTP_PORT:-127.0.0.1:}:${INTERN_HTTP_PORT:-5080}"
     depends_on:
       - "wekode.mml.media"
       - "wekode.mml.identity"
@@ -163,6 +164,7 @@ services:
       TRUSTED_PROXY: ${TRUSTED_PROXY:-}
       CERT_NAME: ${CERT_NAME:-}
       INTERN_SSL_PORT: ${INTERN_SSL_PORT:-5050}
+      INTERN_HTTP_PORT: ${INTERN_HTTP_PORT:-5080}
       FILE_UPLOAD_LIMIT: ${FILE_UPLOAD_LIMIT:-100m}
       REQUEST_MODE: ${REQUEST_MODE:-$$binary_remote_addr}
       RPS_LIMIT: ${RPS_LIMIT:-100}
