@@ -79,10 +79,15 @@ services:
       INSTANCE: ${INSTANCE}
       ENCRYPT_SECRET: ${ENCRYPT_SECRET:-}
       SIGN_SECRET: ${SIGN_SECRET:-}
+      ENCRYPT_SECRET_FILE: /run/secrets/encrypt_secret
+      SIGN_SECRET_FILE: /run/secrets/sign_secret
     volumes:
       - ${VOL_CERTS}:/etc/ssl/certs:ro,z
       - ${IDENTITY_APPSETTINGS}:/configs/appsettings.json:ro,Z
       - ${IDENTITY_SECRETS_PATH}:/secrets
+      # optional secret files, /dev/null if not configured
+      - ${ENCRYPT_SECRET_FILE:-/dev/null}:/run/secrets/encrypt_secret:ro
+      - ${SIGN_SECRET_FILE:-/dev/null}:/run/secrets/sign_secret:ro
       - /etc/localtime:/etc/localtime:ro
     networks:
       - wekode.mml
@@ -106,12 +111,15 @@ services:
     environment:
       INSTANCE: ${INSTANCE}
       FEDERATION_KEY_SECRET: ${FEDERATION_KEY_SECRET:-}
+      FEDERATION_KEY_SECRET_FILE: /run/secrets/federation_key_secret
     volumes:
       - ${VOL_CERTS}:/etc/ssl/certs:ro,z
       - ${VOL_RECORDS}:/records:Z
       - ${MEDIA_APPSETTINGS}:/configs/appsettings.json:ro,Z
       - ${MEDIA_STYLING:-./media/styling.json}:/configs/styling.json:ro,Z
       - ${MEDIA_SECRETS_PATH:-./media/secrets}:/secrets
+      # optional secret file, /dev/null if not configured
+      - ${FEDERATION_KEY_SECRET_FILE:-/dev/null}:/run/secrets/federation_key_secret:ro
       - /etc/localtime:/etc/localtime:ro
     networks:
       - wekode.mml
@@ -126,6 +134,19 @@ services:
     image: nginx:${NGINX_VERSION:-latest}
     container_name: wekode.mml.reverseproxy
     restart: always
+    # Stops with a hint, if default.conf.template includes the listen configuration, but 15-mml-listen.sh is missing or not executable.
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        script=/docker-entrypoint.d/15-mml-listen.sh
+        if grep -q mml-listen.inc /etc/nginx/templates/default.conf.template && ! [ -f "$$script" -a -x "$$script" ]; then
+          echo "MML: $$script is missing or not executable. Copy 15-mml-listen.sh next to default.conf.template on the host and run chmod +x on it. See the reverse proxy section of the backend setup documentation." >&2
+          exit 1
+        fi
+        exec /docker-entrypoint.sh "$$@"
+      - --
+    command: ["nginx", "-g", "daemon off;"]
     ports:
       - "${SSL_PORT:-5050}:${INTERN_SSL_PORT:-5050}"
     depends_on:
@@ -134,9 +155,13 @@ services:
     volumes:
       - "${VOL_CERTS}:/etc/nginx/certs:ro,z"
       - "${CONF_TEMPLATE}/default.conf.template:/etc/nginx/templates/default.conf.template:Z"
+      - "${CONF_TEMPLATE}/15-mml-listen.sh:/docker-entrypoint.d/15-mml-listen.sh:ro,Z"
+      - "${PROXY_LOGS:-./reverse-proxy/logs}:/var/log/nginx/mml:Z"
       - /etc/localtime:/etc/localtime:ro
     environment:
-      CERT_NAME: ${CERT_NAME}
+      PROXY_TLS: ${PROXY_TLS:-true}
+      TRUSTED_PROXY: ${TRUSTED_PROXY:-}
+      CERT_NAME: ${CERT_NAME:-}
       INTERN_SSL_PORT: ${INTERN_SSL_PORT:-5050}
       FILE_UPLOAD_LIMIT: ${FILE_UPLOAD_LIMIT:-100m}
       REQUEST_MODE: ${REQUEST_MODE:-$$binary_remote_addr}
