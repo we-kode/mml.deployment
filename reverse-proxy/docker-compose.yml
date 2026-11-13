@@ -3,19 +3,35 @@ services:
       image: ${IMAGE}
       container_name: wekode.mml.reverseproxy
       restart: always
+      # Stops with a hint, if default.conf.template includes the listen configuration, but 15-mml-listen.sh is missing or not executable.
+      entrypoint:
+        - /bin/sh
+        - -c
+        - |
+          script=/docker-entrypoint.d/15-mml-listen.sh
+          if grep -q mml-listen.inc /etc/nginx/templates/default.conf.template && ! [ -f "$$script" -a -x "$$script" ]; then
+            echo "MML: $$script is missing or not executable. Copy 15-mml-listen.sh next to default.conf.template on the host and run chmod +x on it. See the reverse proxy section of the backend setup documentation." >&2
+            exit 1
+          fi
+          exec /docker-entrypoint.sh "$$@"
+        - --
+      command: ["nginx", "-g", "daemon off;"]
       user: ${UID}:${GID}
       ports:
         - "${SSL_PORT}:${INTERN_SSL_PORT}"
-      depends_on:
-        - "wekode.mml.media"
-        - "wekode.mml.identity"
+        - "${HTTP_PORT:-127.0.0.1:}:${INTERN_HTTP_PORT:-5080}"
       volumes:
         - "${VOL_CERTS}:/etc/nginx/certs:ro,z"
         - "${CONF_TEMPLATE}/default.conf.template:/etc/nginx/templates/default.conf.template:Z"
+        - "${CONF_TEMPLATE}/15-mml-listen.sh:/docker-entrypoint.d/15-mml-listen.sh:ro,Z"
+        - "${PROXY_LOGS:-./logs}:/var/log/nginx/mml:Z"
         - /etc/localtime:/etc/localtime:ro
       environment:
-        CERT_NAME: ${CERT_NAME}
+        PROXY_TLS: ${PROXY_TLS:-true}
+        TRUSTED_PROXY: ${TRUSTED_PROXY:-}
+        CERT_NAME: ${CERT_NAME:-}
         INTERN_SSL_PORT: ${INTERN_SSL_PORT}
+        INTERN_HTTP_PORT: ${INTERN_HTTP_PORT:-5080}
         FILE_UPLOAD_LIMIT: ${FILE_UPLOAD_LIMIT}
         REQUEST_MODE: ${REQUEST_MODE}
         RPS_LIMIT: ${RPS_LIMIT}

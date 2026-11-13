@@ -1,0 +1,32 @@
+{
+  "title": {
+    "default": "Meine Mediathek",
+    "de": "Meine Mediathek",
+    "en": "My Media Lib",
+    "ru": "Моя Медиятека"
+  },
+  "colors": {
+    "light": {
+      "surface": "#FDFBFF",
+      "onSurface": "#1A1C1E",
+      "surfaceContainerHighest": "#E0E2EC",
+      "onSurfaceVariant": "#43474E",
+      "primary": "#245FA6",
+      "onPrimary": "#FFFFFF",
+      "primaryContainer": "#D5E3FF",
+      "onPrimaryContainer": "#001B3C",
+      "outline": "#74777F"
+    },
+    "dark": {
+      "surface": "#1A1C1E",
+      "onSurface": "#E3E2E6",
+      "surfaceContainerHighest": "#43474E",
+      "onSurfaceVariant": "#C4C6CF",
+      "primary": "#A8C8FF",
+      "onPrimary": "#003061",
+      "primaryContainer": "#004689",
+      "onPrimaryContainer": "#D5E3FF",
+      "outline": "#8E9199"
+    }
+  }
+}
