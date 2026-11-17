@@ -71,6 +71,13 @@ server {
         proxy_pass $upstream;
     }
 
+    ## Static information pages: privacy.html and legal.html from CONF_TEMPLATE/staticfiles, 404 when missing
+    location ~ ^/(privacy|legal)$ {
+        root /usr/share/nginx/mml-static;
+        charset utf-8;
+        try_files /$1.html =404;
+    }
+
     ## Media-Service: all other requests, e.g. api, share pages and federation hub
     location / {
         set $upstream ${MEDIA_API_ADDRESS}:${MEDIA_API_PORT};

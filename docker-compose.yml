@@ -158,6 +158,7 @@ services:
       - "${CONF_TEMPLATE}/default.conf.template:/etc/nginx/templates/default.conf.template:Z"
       - "${CONF_TEMPLATE}/15-mml-listen.sh:/docker-entrypoint.d/15-mml-listen.sh:ro,Z"
       - "${PROXY_LOGS:-./reverse-proxy/logs}:/var/log/nginx/mml:Z"
+      - "${CONF_TEMPLATE}/staticfiles:/usr/share/nginx/mml-static:ro,Z"
       - /etc/localtime:/etc/localtime:ro
     environment:
       PROXY_TLS: ${PROXY_TLS:-true}
